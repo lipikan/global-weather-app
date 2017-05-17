@@ -66,6 +66,41 @@ The Endpoint list all the API's and its usage which can also be used to test the
 To Run the Apps:
 There are two docker folders:
 1) DockerMockService
+```
+The Folder consist of the below:
+DockerMockSercice
+|____mock-weather-app.zip
+|____mule-ee-distribution-standalone-3.8.0.tar.gz
+|____Dockerfile
+|____build.sh
+
+The build.sh file will build the docker container and also run the docker container.
+To Run the build.sh file:
+First provide permission:
+$ chmod +x build.sh
+Run the script:
+$ ./build.sh
+That should bring the mock service up on port 63081.
+
+```
 2) DockerGlobalWeather
+```
+The Folder consist of the below:
+DockerGlobalWeather
+|____weather-raml-exercise.zip
+|____mule-ee-distribution-standalone-3.8.0.tar.gz
+|____Dockerfile
+|____build.sh
+
+The build.sh file will build the docker container and also run the docker container and use the mock service container network.
+To Run the build.sh file:
+First provide permission:
+$ chmod +x build.sh
+Run the script:
+$ ./build.sh
+That should bring the weather app up.
+```
+Challenges:
+
 
 
