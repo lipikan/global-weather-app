@@ -54,6 +54,13 @@ Response:
   }
 }
 ```
+Alternative way to access the API's
+```
+It can be also accessed through the MULE API KIT Console:
+http://127.0.0.1:8081/console/
+The Endpoint list all the API's and its usage which can also be used to test the Application.
+```
+
 2) mock-weather-app: This a mock webservice to get weather report for a city in a country.
 
 To Run the Apps:
