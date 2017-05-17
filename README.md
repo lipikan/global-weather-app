@@ -55,3 +55,10 @@ Response:
 }
 ```
 2) mock-weather-app: This a mock webservice to get weather report for a city in a country.
+
+To Run the Apps:
+There are two docker folders:
+1) DockerMockService
+2) DockerGlobalWeather
+
+
