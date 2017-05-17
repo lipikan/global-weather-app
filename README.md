@@ -2,11 +2,14 @@
 
 The global-weather-app has two mule projects:
 1) weather-raml-exercise: This application has two REST API services:
-1st service:
+1st service: Get Cities
 ```
-Get Cities: This service lists down all the cities in a given country
-URI Endpoint:http://host:port/globalweather/v1/cities?country=name-of-the-country
+This service lists down all the cities in a given country as parameter
+
+URI Endpoint:http://host:port/globalweather/v1/cities?country={name-of-the-country}
+```
 Example:
+```
 URI: http://127.0.0.1:8081/globalweather/v1/cities?country=Fiji
 
 Response:
@@ -34,14 +37,15 @@ Response:
 }
 
 ```
-2nd Service:
+2nd Service: Get Weather
 
 ```
+This service gets the weather report of the city in a country taking city and country as parameters.
 
-Get Weather: This service gets the weather report of the city in a country
-URI Endpoint: http://host:port/globalweather/v1/weather?country=name-of-country&city=name-of-city
-
+URI Endpoint: http://host:port/globalweather/v1/weather?country={name-of-country}&city={name-of-city}
+```
 Example:
+```
 URI: http://127.0.0.1:8081/globalweather/v1/weather?country=India&city=Mumbai
 
 Response:
@@ -92,7 +96,8 @@ DockerGlobalWeather
 |____Dockerfile
 |____build.sh
 
-The build.sh file will build the docker container and also run the docker container and use the mock service container network.
+The build.sh file will build the docker container and also run the docker container and use the mock service 
+container network.
 To Run the build.sh file:
 First provide permission:
 $ chmod +x build.sh
@@ -106,7 +111,8 @@ There were a couple of challenges I faced while doing this project:
 ```
 The Response GetCitiesByCountryResponse was a String intead of XML object, which was difficult to parse. 
 To overcome it :
-I wrote a groovy script to convert the string to a DOM object and then used MULE's DOMTOXML transformer to make it a proper XML. 
+I wrote a groovy script to convert the string to a DOM object and then used 
+MULE's DOMTOXML transformer to make it a proper XML. 
 And Finally tranforming the XML to JSON as per my API's response.
 
 Alternative:
@@ -114,19 +120,24 @@ Could have been also parsed through dataweave if I would have investigate more.
 ```
 2) Dockerising the actual service and the mock service
 ```
-Since the GetWeather webservice was not working, I had to write a simple mock service and call the service in my weather-raml-exercise instead of actual service.
+Since the GetWeather webservice was not working, I had to write a simple mock service 
+and call the service in my weather-raml-exercise instead of actual service.
 
 The Problem was how to deploy bot the application in a docker container:
 
-I tried deploying both the apps in one docker container but could not control the order of deployment, which cause the weather-raml-exercise app to Fail because it was dependent on "mock-weather-app". And the container was first deploying weather-raml-exercise and then "mock-weather-app" later which caused Connection Refused error becuause it could not find the mock web service.
+I tried deploying both the apps in one docker container but could not control the order of deployment, 
+which cause the weather-raml-exercise app to Fail because it was dependent on "mock-weather-app".
+And the container was first deploying weather-raml-exercise and then "mock-weather-app" 
+later which caused Connection Refused error becuause it could not find the mock web service.
 
 To overcome it:
 I decided to deploy the mock service in a separate docker container.
 
-and then deploy the weather-raml-exercise in separate container but to share the network of the mock container so that it can access the mock web service.
+and then deploy the weather-raml-exercise in separate container but to share the 
+network of the mock container so that it can access the mock web service.
 
 To achieve it I used the following docker command:
 docker run --network container:muleMock -it --name muleService mule-container
 
 ```
-I really enjoyed doing this exercise.
+I really enjoyed doing this exercis and lernt a lot about docker.
