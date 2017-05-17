@@ -1,0 +1,126 @@
+#%RAML 0.8
+title: global-whether-raml-app
+version: v1
+#baseUri: http://localhost:8081/gloabalweather/{version} 
+baseUri: https://mocksvc.mulesoft.com/mocks/cb0bd996-c334-4f33-97f8-ba162fca2f92/gloabalweather/{version}
+protocols: [HTTP]
+/cities:
+  description: Service to get all the cities by country.
+  get:
+    description: Gets all the cities for a given country
+    queryParameters: 
+      country:
+        displayName: Country
+        description: The name of the Country.
+        example: India
+        type: string
+        required: true
+    responses: 
+      200:
+        body: 
+          application/json:
+           example: |
+              {
+                "data": {
+                  "table": [
+                    {
+                      "country" : "Australia",
+                      "city" : "Melbourne"
+                    },
+                    {
+                      "country" : "Australia",
+                      "city" : "Sydney"
+                    }
+                  ]
+                }
+              }
+      400:
+        body: 
+          application/json:
+            example: |
+              {
+                "error" : {
+                  "errorMessage": "Invalid Input",
+                  "errorDescription": "Country Name is Required"
+                }
+              }
+      204:
+        body:
+          application/json:
+            example: |
+              {
+                "error" : {
+                  "errorMessage": "Data Not Found",
+                  "errorDescription": "Could Not Find Cities For Country Name : XYZ"
+                }
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {
+                "error" : {
+                  "errorMessage": "Unexpected Error Occured",
+                  "errorDescription": "OutOfMemoryException"
+                }
+              }
+/weather:
+  description: Service to get weather for a city.
+  get:
+    description: Gets all the cities for a given country
+    queryParameters: 
+      country:
+        displayName: Country
+        description: The name of the Country.
+        example: India
+        type: string
+      city:
+        displayName: City
+        description: The Name of the City
+        type: string
+        example: Mumbai
+    responses: 
+      200:
+        body: 
+          application/json:
+            example: |
+              {
+                "data": {
+                    "country" : "Australia",
+                    "city" : "Melbourne",
+                    "temprature" : "16 Degree",
+                    "unit" : "centigrade"
+                }
+              }
+      400:
+        body: 
+          application/json:
+            example: |
+                {
+                  "error" : {
+                    "errorMessage": "Invalid Input",
+                    "errorDescription": "Country Name is Required"
+                  }
+                }
+      204:
+        body:
+          application/json:
+            example: |
+                {
+                  "error" : {
+                    "errorMessage": "Data Not Found",
+                    "errorDescription": "Could Not Find Cities For Country Name : XYZ"
+                  }
+                }
+      500:
+        body:
+          application/json:
+            example: |
+                {
+                  "error" : {
+                    "errorMessage": "Unexpected Error Occured",
+                    "errorDescription": "OutOfMemoryException"
+                  }
+                }      
+
+

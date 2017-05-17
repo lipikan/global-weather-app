@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "CitiesByCountrySchema"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "citiesByCountryJson"
+        }
+    },
+    "id": "57c4ea49-df80-4262-bc50-d77e2c41c704",
+    "version": "5.2.0.0"
+}

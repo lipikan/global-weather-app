@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+    <validation:config name="Validation_Configuration" doc:name="Validation Configuration"/>
+	<flow name="get-city-names-flow">
+		<set-variable variableName="country"
+			value="#[message.inboundProperties.'http.query.params'.country]"
+			doc:name="set country" />
+		<dw:transform-message doc:name="Set Soap Request">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://www.webserviceX.NET
+---
+{
+	ns0#GetCitiesByCountry: {
+		ns0#CountryName: flowVars.country as :string
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<ws:consumer config-ref="Gloabal_Web_Service_Consumer" operation="GetCitiesByCountry"
+			doc:name="Get Cities By Country Web Service" />
+        <dw:transform-message doc:name="Get CitiesByCountry as Payload" metadata:id="af5d7352-62ee-4dbb-ad22-5ad0ea941f31">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+%namespace ns0 http://www.webserviceX.NET
+---
+payload.ns0#GetCitiesByCountryResponse.ns0#GetCitiesByCountryResult]]></dw:set-payload>
+        </dw:transform-message>
+		<flow-ref name="convert-string-to-xml-flow" doc:name="convert-string-to-xml-flow" />
+		<dw:transform-message doc:name="Transform XML to JSON"
+			metadata:id="57c4ea49-df80-4262-bc50-d77e2c41c704">
+			<dw:input-payload doc:sample="sample_data/NewDataSet.xml"
+				mimeType="application/xml" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	result: {
+		table: payload.NewDataSet.*Table map ((table , indexOfTable) -> {
+			country: table.Country,
+			city: table.City
+		})
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<logger message="#[flowVars.cities]" level="INFO" doc:name="Logger" />
+		<choice-exception-strategy doc:name="Choice Exception Strategy">
+			<catch-exception-strategy
+				when="#[exception.causedBy(com.mulesoft.weave.mule.exception.WeaveExecutionException)]"
+				doc:name="Catch Exception Strategy">
+				<set-variable variableName="errMsg"
+					value="#[exception.message.toString()]" doc:name="Set Error message" />
+				<logger message="#[flowVars.errMsg]" level="INFO" doc:name="Logger" />
+				<set-property propertyName="http.status" value="&quot;204&quot;"
+					doc:name="Set Http Status" />
+				<set-property propertyName="http.reason" value="&quot;Data Not Found&quot;"
+					doc:name="Set HTTP Reason" />
+				<dw:transform-message doc:name="Transform Error to JSON"
+					metadata:id="5c4b0eac-097b-4d03-8d6c-2807b3cad244">
+					<dw:input-variable mimeType="application/java"
+						variableName="errMsg" />
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	error: {
+		errorMessage: "No Data Found",
+		errorDescription: "Could Not find Data for Country Name: " ++ flowVars.country
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</catch-exception-strategy>
+			<catch-exception-strategy
+				when="#[exception.causedBy(java.lang.Exception)]" doc:name="Catch Exception Strategy">
+				<set-variable variableName="errMsg"
+					value="#[exception.message.toString()]" doc:name="set Error message" />
+				<set-property propertyName="http.status" value="&quot;500&quot;"
+					doc:name="Set Http Status" />
+				<set-property propertyName="http.reason" value="&quot;Unknown Error&quot;"
+					doc:name="Set HTTP Reason" />
+				<dw:transform-message doc:name="Transform error to JSON"
+					metadata:id="5c4b0eac-097b-4d03-8d6c-2807b3cad244">
+					<dw:input-variable mimeType="application/java"
+						variableName="errMsg" />
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	error: {
+		errorMessage: "Unknown Error Occurred",
+		errorDescription: flowVars.errMsg
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</catch-exception-strategy>
+		</choice-exception-strategy>
+	</flow>
+	<sub-flow name="convert-string-to-xml-flow">
+		<scripting:component doc:name="Groovy">
+			<scripting:script engine="Groovy"><![CDATA[import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
+DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+DocumentBuilder builder;
+try
+{
+builder = factory.newDocumentBuilder();
+Document doc = builder.parse( new InputSource( new StringReader( payload ) ) );
+return doc;          
+} catch (Exception e) 
+{
+throw new Exception(e);
+}
+return null;]]></scripting:script>
+		</scripting:component>
+		<mulexml:dom-to-xml-transformer
+			doc:name="DOM to XML" />
+		<logger message="#[payload]" level="INFO" doc:name="Logger" />
+	</sub-flow>
+	<flow name="get-city-weather-flow">
+		<!-- <http:listener config-ref="HTTP_Listener_Configuration" path="/weather" 
+			doc:name="HTTP"/> -->
+		<set-variable variableName="country"
+			value="#[message.inboundProperties.'http.query.params'.country]"
+			doc:name="set country" />
+		<set-variable variableName="city"
+			value="#[message.inboundProperties.'http.query.params'.city]"
+			doc:name="set city" />
+        <validation:is-not-null message="City Cannot be Null" value="#[flowVars.city]" doc:name="Validate City is not Null"/>
+        <validation:is-not-empty message="City Cannot ne Empty" value="#[flowVars.city]" doc:name="Validate City is not Empty"/>
+		<dw:transform-message doc:name="Set SOAP Request">
+			<dw:input-variable doc:sample="sample_data/string.dwl"
+				variableName="city" />
+			<dw:input-variable doc:sample="sample_data/string_1.dwl"
+				variableName="country" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://www.webserviceX.NET
+%namespace ns01 http://weather.com/
+---
+{
+	ns0#GetWeather: {
+		ns0#CityName: flowVars.city,
+		ns0#CountryName: flowVars.country
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+        <ws:consumer config-ref="Gloabal_Web_Service_Consumer" operation="GetWeather" doc:name="Weather Web Service Consumer"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="94876206-8c6f-4753-9dfc-dfcc5498c0fa">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+%namespace ns0 http://www.webserviceX.NET
+---
+payload.ns0#GetWeatherResponse.ns0#GetWeatherResult]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload==&quot;Data Not Found&quot;]">
+                <flow-ref name="weather-mock-serviceFlow" doc:name="weather-mock-serviceFlow"/>
+            </when>
+            <otherwise>
+                <logger message="Actual Implementation not present" level="INFO" doc:name="Logger"/>
+                <dw:transform-message doc:name="Transform Message" metadata:id="5f1870b6-3933-4f33-a89c-1c3bfae44ad2">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	error: {
+		errorMessage: "UPCOMING SERVICE",
+		errorDescription: "SERVICE NOT IMPLEMENTED YET"
+	}
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+		<choice-exception-strategy doc:name="Choice Exception Strategy">
+			<catch-exception-strategy
+				when="#[exception.causedBy(org.mule.extension.validation.api.ValidationException)]" doc:name="Catch Exception Strategy For Validation Exception">
+				<set-variable variableName="errMsg"
+					value="#[exception.message.toString()]" doc:name="set Error message" />
+				<set-property propertyName="http.status" value="&quot;500&quot;"
+					doc:name="Set Http Status" />
+				<set-property propertyName="http.reason" value="&quot;Unknown Error&quot;"
+					doc:name="Set HTTP Reason" />
+				<dw:transform-message doc:name="Transform Error To JSON"
+					metadata:id="5c4b0eac-097b-4d03-8d6c-2807b3cad244">
+					<dw:input-variable mimeType="application/java"
+						variableName="errMsg" />
+                    <dw:input-outbound-property mimeType="application/java" propertyName="http.reason"/>
+                    <dw:input-outbound-property mimeType="application/java" propertyName="http.status"/>
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	error: {
+		errorMessage: "Invalid Input",
+		errorDescription: flowVars.errMsg
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</catch-exception-strategy>
+            <catch-exception-strategy when="#[exception.causedBy(java.lang.Exception)]" doc:name="Catch Exception Strategy For General Exception">
+                <set-variable variableName="errMsg" value="#[exception.message.toString()]" doc:name="set Error message"/>
+                <set-property propertyName="http.status" value="&quot;500&quot;" doc:name="Set Http Status"/>
+                <set-property propertyName="http.reason" value="&quot;Unknown Error&quot;" doc:name="Set HTTP Reason"/>
+                <dw:transform-message doc:name="Transform Error To JSON" metadata:id="5c4b0eac-097b-4d03-8d6c-2807b3cad244">
+                    <dw:input-variable mimeType="application/java" variableName="errMsg"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	error: {
+		errorMessage: "Unknown Error Occurred",
+		errorDescription: flowVars.errMsg
+	}
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </catch-exception-strategy>
+		</choice-exception-strategy>
+	</flow>
+</mule>

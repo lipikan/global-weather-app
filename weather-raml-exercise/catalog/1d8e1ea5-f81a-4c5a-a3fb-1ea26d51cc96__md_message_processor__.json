@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "Weather_Web_Service_Consumer",
+            "typeId": "GetCitiesByCountryResponse"
+        }
+    },
+    "outputMessageMetadata": {},
+    "id": "1d8e1ea5-f81a-4c5a-a3fb-1ea26d51cc96",
+    "version": "5.2.0.0"
+}

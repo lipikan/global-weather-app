@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "weatherResultJson"
+        }
+    },
+    "id": "21020066-2069-4d42-9168-f5f3a0334603",
+    "version": "5.2.0.0"
+}

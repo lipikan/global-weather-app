@@ -1,0 +1,28 @@
+{
+    "inputMessageMetadata": {
+        "flowVariables": {
+            "errMsg": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "String"
+            }
+        },
+        "outboundProperties": {
+            "http.reason": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "String"
+            },
+            "http.status": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "Integer"
+            }
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "errorMessage"
+        }
+    },
+    "id": "5c4b0eac-097b-4d03-8d6c-2807b3cad244",
+    "version": "5.2.0.0"
+}

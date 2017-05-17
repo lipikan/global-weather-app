@@ -1,0 +1,17 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "weatherResponseSchema"
+        },
+        "flowVariables": {
+            "temprature": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "String"
+            }
+        }
+    },
+    "outputMessageMetadata": {},
+    "id": "b3951ce1-50c0-42b6-930c-bb7fc2bce387",
+    "version": "5.2.0.0"
+}

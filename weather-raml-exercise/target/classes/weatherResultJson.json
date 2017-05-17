@@ -1,0 +1,8 @@
+{
+  "data": {
+            "country" : "Australia",
+            "city" : "Melbourne",
+            "temprature" : "16 Degree",
+            "unit" : "centigrade"
+           }
+}
