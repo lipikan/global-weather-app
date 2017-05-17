@@ -108,6 +108,11 @@ Run the script:
 $ ./build.sh
 That should bring the weather app up.
 ```
+Note:
+```
+Please run the MockService before the GlobalWeather as GlobalWeather is dependent on the Mock service.
+```
+
 Challenges:
 There were a couple of challenges I faced while doing this project:
 1) Data transformation of the web service GetCitiesByCountry
