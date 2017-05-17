@@ -140,4 +140,13 @@ To achieve it I used the following docker command:
 docker run --network container:muleMock -it --name muleService mule-container
 
 ```
-I really enjoyed doing this exercis and lernt a lot about docker.
+Improvements:
+```
+1) Could have imporoved the Exception Handling of the project by defining a global exception strategy 
+   and using it in all the flows.
+2) If time permitted could have added unit test cases to app.
+3) Made the mock webservice an exact replica of the actual webservice, which will reduce changes 
+   to the app when the actual webservice is up and running.
+```
+
+I really enjoyed doing this exercis and learnt a lot about docker.
