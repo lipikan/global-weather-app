@@ -68,6 +68,8 @@ The Endpoint list all the API's and its usage which can also be used to test the
 2) mock-weather-app: This a mock webservice to get weather report for a city in a country.
 
 To Run the Apps:
+Download the mule-ee-distribution-standalone-3.8.0.tar.gz file and place into each of the docker folders 
+as per the structure explained below.
 There are two docker folders:
 1) DockerMockService
 ```
